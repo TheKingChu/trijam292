@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public abstract class CreatureBase : MonoBehaviour
 {
@@ -11,6 +12,13 @@ public abstract class CreatureBase : MonoBehaviour
 
     public float popupTime = 2f;
     public float popdownTime = 1f;
+
+    private ScoreManager scoreManager;
+
+    protected virtual void Start()
+    {
+        scoreManager = FindObjectOfType<ScoreManager>();
+    }
 
     protected virtual void Popup()
     {
@@ -32,8 +40,28 @@ public abstract class CreatureBase : MonoBehaviour
     {
         isPoppedUp = false;
         timer = 0f;
+        Debug.Log("Creature bopped");
         transform.Translate(Vector3.up * 1f);
         //add points
+        if (scoreManager != null)
+        {
+            scoreManager.AddPoints(10);  // Add 10 points or custom value
+        }
+        Destroy(gameObject);
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Floor"))
+        {
+            Destroy(gameObject);
+        }
+
+        if (other.gameObject.CompareTag("Player"))
+        {
+            Bop();
+        }
     }
 
     protected virtual void Update()
