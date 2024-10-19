@@ -70,7 +70,7 @@ MonoBehaviour:
   assignedKey: 0
   popupTime: 2
   popdownTime: 1
-  scoreManager: {fileID: 3894924306939598558, guid: d324b8b00d531444c882c50c0ebc0d31, type: 3}
+  hitEffect: {fileID: 7757617582986781872, guid: b3b1f2d3966f35048887b21d5b3d7dd4, type: 3}
 --- !u!1001 &2458337759873897811
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -12,12 +12,21 @@ public abstract class CreatureBase : MonoBehaviour
 
     public float popupTime = 2f;
     public float popdownTime = 1f;
+    private float currentPopupTime;
+    private float currentPopdownTime;
 
     private ScoreManager scoreManager;
+    private WaterManager waterManager;
+
+    public GameObject hitEffect;
 
     protected virtual void Start()
     {
         scoreManager = FindObjectOfType<ScoreManager>();
+        waterManager = FindObjectOfType<WaterManager>();
+
+        currentPopupTime = popupTime;
+        currentPopdownTime = popdownTime;
     }
 
     protected virtual void Popup()
@@ -32,22 +41,29 @@ public abstract class CreatureBase : MonoBehaviour
         isPoppedUp = false;
         timer = 0f;
         transform.Translate(Vector3.down * 3f);
-
-        //FindObjectOfType<OverflowManager>().MissedCreature;
     }
 
     protected virtual void Bop()
     {
         isPoppedUp = false;
+        SoundManager.instance.PlaySoundEffect(1);
         timer = 0f;
         Debug.Log("Creature bopped");
         transform.Translate(Vector3.up * 1f);
+
         //add points
         if (scoreManager != null)
         {
-            scoreManager.AddPoints(10);  // Add 10 points or custom value
+            scoreManager.AddPoints(10);
         }
-        Destroy(gameObject);
+
+        if (hitEffect != null)
+        {
+            // Create the effect at the creature's position
+            Instantiate(hitEffect, transform.position, Quaternion.identity);
+        }
+
+        gameObject.SetActive(false);
 
     }
 
@@ -55,6 +71,14 @@ public abstract class CreatureBase : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Floor"))
         {
+            if (waterManager != null)
+            {
+                waterManager.RiseWaterLevel();
+            }
+            if (scoreManager != null)
+            {
+                scoreManager.MissedHit(); // Reset multiplier on miss
+            }
             Destroy(gameObject);
         }
 
@@ -68,7 +92,9 @@ public abstract class CreatureBase : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if (!isPoppedUp && timer >= popupTime)
+        AdjustSpeed();
+
+        if (!isPoppedUp && timer >= currentPopupTime)
         {
             Popdown();
         }
@@ -77,5 +103,13 @@ public abstract class CreatureBase : MonoBehaviour
         {
             Bop();
         }
+    }
+
+    private void AdjustSpeed()
+    {
+        float elapsedTime = Time.timeSinceLevelLoad;
+
+        currentPopupTime = Mathf.Max(popupTime - (elapsedTime / 60), 0.5f);
+        currentPopdownTime = Mathf.Max(popdownTime - (elapsedTime / 60), 0.5f);
     }
 }

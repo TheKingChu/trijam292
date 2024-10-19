@@ -7,6 +7,7 @@ public class SceneLoader : MonoBehaviour
 {
     public void StartGame()
     {
+        SoundManager.instance.PlaySoundEffect(0);
         SceneManager.LoadScene(1);
     }
 
